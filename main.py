@@ -4,6 +4,7 @@ import requests
 import os
 import argparse
 import questionary
+from termcolor import colored
 import sys
 from light_tuning import LightTuning
 
@@ -64,7 +65,13 @@ def main():
                         help='Do all of the above in order (generate, upload, finetune)')
     args = parser.parse_args()
 
-    print("Welcome to LightTuning!")
+    print(colored("---------- Hello! Let's fine-tune a model today ----------"))
+    print(colored("   __ _       _     _     _____             _             ", 'red'))
+    print(colored("  / /(_) __ _| |__ | |_  /__   \_   _ _ __ (_)_ __   __ _ ", 'yellow'))
+    print(colored(" / / | |/ _` | '_ \| __|   / /\/ | | | '_ \| | '_ \ / _` |", 'green'))
+    print(colored("/ /__| | (_| | | | | |_   / /  | |_| | | | | | | | | (_| |", 'blue'))
+    print(colored("\____/_|\__, |_| |_|\__|  \/    \__,_|_| |_|_|_| |_|\__, |", 'magenta'))
+    print(colored("        |___/                                       |___/ ", 'cyan'))
     job_creator = LightTuning(os.environ["OPENAI_API_KEY"])
 
     actions = {

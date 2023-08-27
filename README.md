@@ -9,6 +9,12 @@
   <h1 align="center">LightTuning</h1>
 </p>
 
+<p align="center">
+  🤖 CLI to fine-tune GPT-3.5 Turbo models rapidly. 💬
+</p>
+
+![Demo of Project](./.github/preview.jpg)
+
 ## 🚀 Concept
 
 **LightTuning** is a quick way to fine-tune GPT-3.5 Turbo models. To scale and enhance a model from a small conversation to a light GPT-3.5 model that can overperform GPT-4. How cool is that?
