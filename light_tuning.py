@@ -57,7 +57,7 @@ class LightTuning:
             with open("dataset.json", "w") as f:
                 dataset = remove_consecutive_newlines(dataset)
                 f.write(dataset)
-            spinner.succeed('Dataset generated successfully!')
+            spinner.succeed('Dataset generated successfully! You can access it at ./dataset.json')
             return dataset
         except Exception as e:
             spinner.fail(f"Error in generate_dataset: {e}")

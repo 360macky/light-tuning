@@ -20,7 +20,7 @@ def generate_dataset(job_creator, base=None):
     dataset = job_creator.generate_dataset(input_conversation)
     if dataset is None:
         return
-    return dataset
+    return 'dataset.json'
 
 
 def upload_dataset(job_creator, file_path=None):
@@ -36,6 +36,7 @@ def upload_dataset(job_creator, file_path=None):
 
 
 def fine_tune_model(job_creator, file_id=None):
+    print(f"Using {file_id} to fine-tune the model.")
     if file_id is None:
         file_id = questionary.text(
             "Please provide the file ID for fine-tuning:").ask()
@@ -43,6 +44,12 @@ def fine_tune_model(job_creator, file_id=None):
     if model_id is None:
         return
     print(f"MODEL_ID: {model_id}")
+    return model_id
+
+def do_all(job_creator):
+    dataset = generate_dataset(job_creator)
+    file_id = upload_dataset(job_creator, dataset)
+    model_id = fine_tune_model(job_creator, file_id)
     return model_id
 
 
@@ -78,7 +85,7 @@ def main():
         'Generate dataset': generate_dataset,
         'Upload dataset': upload_dataset,
         'Fine-tune model': fine_tune_model,
-        'All': lambda jc: fine_tune_model(jc, upload_dataset(jc, generate_dataset(jc)))
+        'All': do_all
     }
 
     action = questionary.select(
