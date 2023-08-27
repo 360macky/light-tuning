@@ -21,7 +21,15 @@
 
 ## 🧑‍💻 Usage
 
-Run the main.py script to start the tool.
+### Installation
+
+Install the required packages using pip.
+
+```bash
+pip3 install -r requirements.txt
+```
+
+Run the `main.py` script to start the tool.
 
 ```bash
 python3 main.py
