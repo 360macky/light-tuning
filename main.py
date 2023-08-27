@@ -31,7 +31,6 @@ def upload_dataset(job_creator, file_path=None):
         file_id = job_creator.upload_dataset(file_path)
         if file_id is None:
             return
-        print(f"TRAINING_FILE_ID: {file_id}")
         return file_id
 
 

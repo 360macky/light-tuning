@@ -5,6 +5,7 @@ from halo import Halo
 from utils import remove_consecutive_newlines
 from typing import Optional
 import time
+from prettytable import PrettyTable
 
 
 class LightTuning:
@@ -95,13 +96,13 @@ class LightTuning:
             return None
 
     def create_fine_tuning_job(self, file_id: str) -> Optional[str]:
-        # To avoid multiple-request errors
-        time.sleep(4)
         """
         Create a fine-tuning job using the uploaded dataset.
         The dataset is identified by the provided file ID.
         """
         spinner = Halo(text='Creating fine-tuning job...', spinner='dots')
+        # To wait until the file is ready
+        time.sleep(8)
         spinner.start()
         try:
             headers = {
@@ -114,8 +115,32 @@ class LightTuning:
             }
             response = requests.post(
                 "https://api.openai.com/v1/fine_tuning/jobs", headers=headers, json=data)
+            if response.status_code != 200:
+                # Add color red to the text
+                spinner.fail(f"The request to fine-tune the model failed!")
+                print("Response: ", response.content)
+                return None
+
             response.raise_for_status()
-            spinner.succeed('Fine-tuning job created successfully!')
+            spinner.succeed(
+                'Fine-tuning job created successfully! The following is the response from OpenAI Fine-Tuning API:')
+
+            # Create a PrettyTable object
+            table = PrettyTable()
+
+            # Add columns
+            table.field_names = ["Property", "Value"]
+
+            # Add rows
+            response_json = response.json()
+            for key, value in response_json.items():
+                table.add_row([key, value])
+
+            print(table)
+
+            spinner.succeed(
+                'You will receive an email when the fine-tuning job is finished!')
+
             return response.json()["id"]
         except Exception as e:
             spinner.fail(f"Error in create_fine_tuning_job: {e}")
