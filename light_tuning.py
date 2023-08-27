@@ -1,0 +1,116 @@
+import openai
+import requests
+import os
+from halo import Halo
+from utils import remove_consecutive_newlines
+from typing import Optional
+
+
+class LightTuning:
+    """
+    The LightTuning class is responsible for generating a dataset, uploading it, and creating a fine-tuning job.
+    """
+
+    def __init__(self, api_key: str):
+        """
+        Initialize the LightTuning with the provided OpenAI API key.
+        """
+        self.api_key = api_key
+        openai.api_key = self.api_key
+
+    def generate_dataset(self, input_conversation: str) -> Optional[str]:
+        """
+        Generate a dataset by creating a conversation using the GPT-4 model.
+        The conversation is based on the provided input conversation.
+        The generated dataset is written to a JSON file.
+        """
+        spinner = Halo(text='Generating dataset...', spinner='dots')
+        spinner.start()
+        try:
+            dataset_messages = [
+                {
+                    "role": "system",
+                    "content": f"""You are a generator of GPT-3.5 Turbo conversations that outputs JSONL formatted responses (where each JSON object is in only one line and all the JSONs objects separated by a new line) for a training dataset of a conversation between a user and an assistant.
+                    
+                    Your response should be in this format for every line!:
+                    {{\\"messages\\" : [{{\\"role\\": \\"assistant\\", \\"content\\": \\"Instructions from assistant\\"}}, {{\\"role\\": \\"user\\", \\"content\\": \\"Question from user\\"}}, {{\\"role\\": \\"assistant\\", \\"content\\": \\"Reponse from assistant\\"}}
+                    
+                    YOU SHOULD NOT INCLUDE COMMAS AFTER EVERY LINE!
+                    YOU SHOULD NOT INCLUDE THE BACKSLASHES IN YOUR RESPONSE, THEY ARE ONLY THERE TO ESCAPE THE QUOTES.
+                    THE RESPONSE SHOULD BE IN JSONL FORMAT, WHERE EACH JSON OBJECT IS IN ONLY ONE LINE AND ALL THE JSONS OBJECTS SEPARATED BY A NEW LINE.
+                    EVERY LINE SHOULD CONTAIN 1 SYSTEM, 1 USER AND 1 ASSISTANT MESSAGE.
+                    
+                    Your task is to follow the conversation as expected by the system prompt, including also the system, by 12 messages.
+                    
+                    The conversation is this: {input_conversation}."""
+                }
+            ]
+            completion = openai.ChatCompletion.create(
+                model="gpt-4", messages=dataset_messages, temperature=0.7)
+
+            # Convert the string to a JSON object
+            # dataset = completion.choices[0].message['content']
+            dataset = completion.choices[0].message['content']
+            # Write the dataset to a JSON file
+
+            # Use the function
+            with open("dataset.json", "w") as f:
+                dataset = remove_consecutive_newlines(dataset)
+                f.write(dataset)
+            spinner.succeed('Dataset generated successfully!')
+            return dataset
+        except Exception as e:
+            spinner.fail(f"Error in generate_dataset: {e}")
+            return None
+
+    def upload_dataset(self, file_path: str) -> Optional[str]:
+        """
+        Upload the dataset to OpenAI's servers.
+        The dataset should be located at the provided file path.
+        """
+        spinner = Halo(text='Uploading dataset...', spinner='dots')
+        spinner.start()
+        try:
+            with open(file_path, "rb") as f:
+                headers = {
+                    "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"
+                }
+                data = {
+                    "purpose": "fine-tune"
+                }
+                files = {
+                    "file": f
+                }
+                response = requests.post(
+                    "https://api.openai.com/v1/files", headers=headers, data=data, files=files)
+                response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
+                spinner.succeed('Dataset uploaded successfully!')
+                return response.json()["id"]
+        except Exception as e:
+            spinner.fail(f"Error in upload_dataset: {e}")
+            return None
+
+    def create_fine_tuning_job(self, file_id: str) -> Optional[str]:
+        """
+        Create a fine-tuning job using the uploaded dataset.
+        The dataset is identified by the provided file ID.
+        """
+        spinner = Halo(text='Creating fine-tuning job...', spinner='dots')
+        spinner.start()
+        try:
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"
+            }
+            data = {
+                "training_file": file_id,
+                "model": "gpt-3.5-turbo-0613"
+            }
+            response = requests.post(
+                "https://api.openai.com/v1/fine_tuning/jobs", headers=headers, json=data)
+            response.raise_for_status()
+            spinner.succeed('Fine-tuning job created successfully!')
+            return response.json()["id"]
+        except Exception as e:
+            spinner.fail(f"Error in create_fine_tuning_job: {e}")
+            return None
