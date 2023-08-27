@@ -4,6 +4,7 @@ import os
 from halo import Halo
 from utils import remove_consecutive_newlines
 from typing import Optional
+import time
 
 
 class LightTuning:
@@ -40,7 +41,7 @@ class LightTuning:
                     THE RESPONSE SHOULD BE IN JSONL FORMAT, WHERE EACH JSON OBJECT IS IN ONLY ONE LINE AND ALL THE JSONS OBJECTS SEPARATED BY A NEW LINE.
                     EVERY LINE SHOULD CONTAIN 1 SYSTEM, 1 USER AND 1 ASSISTANT MESSAGE.
                     
-                    Your task is to follow the conversation as expected by the system prompt, including also the system, by 12 messages.
+                    Your task is to follow the conversation as expected by the system prompt, including also the system, by many messages until reach 12 lines of conversations.
                     
                     The conversation is this: {input_conversation}."""
                 }
@@ -57,7 +58,9 @@ class LightTuning:
             with open("dataset.json", "w") as f:
                 dataset = remove_consecutive_newlines(dataset)
                 f.write(dataset)
-            spinner.succeed('Dataset generated successfully! You can access it at ./dataset.json')
+                lines_quantity = len(dataset.splitlines())
+            spinner.succeed(
+                f'Dataset generated successfully! You can access it at ./dataset.json and it has {lines_quantity} examples')
             return dataset
         except Exception as e:
             spinner.fail(f"Error in generate_dataset: {e}")
@@ -84,13 +87,16 @@ class LightTuning:
                 response = requests.post(
                     "https://api.openai.com/v1/files", headers=headers, data=data, files=files)
                 response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
-                spinner.succeed('Dataset uploaded successfully!')
+                spinner.succeed(
+                    f'Dataset uploaded successfully! File ID: {response.json()["id"]}')
                 return response.json()["id"]
         except Exception as e:
             spinner.fail(f"Error in upload_dataset: {e}")
             return None
 
     def create_fine_tuning_job(self, file_id: str) -> Optional[str]:
+        # To avoid multiple-request errors
+        time.sleep(4)
         """
         Create a fine-tuning job using the uploaded dataset.
         The dataset is identified by the provided file ID.
