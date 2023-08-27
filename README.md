@@ -36,7 +36,36 @@ You will be greeted with a welcome message and a list of actions to choose from:
 
 Select an action using the arrow keys and press Enter.
 
-If you choose 'Generate dataset', you will be asked to provide the path to the seed conversation. If you don't provide a path, the tool will ask you to enter it.
+### Generate Dataset
+
+If you choose 'Generate dataset', you will be asked to provide the path to the seed conversation. If you don't provide a path, LightTuning will ask you to enter it.
+
+Add a seed conversation to the file. The conversation should be in the following OpenAI conversation format:
+
+```json
+[
+  {
+    "role": "system",
+    "content": "You are an assistant that can translate from English to Spanish."
+  },
+  {
+    "role": "user",
+    "content": "Hello"
+  },
+  {
+    "role": "assistant",
+    "content": "Hola"
+  },
+  {
+    "role": "user",
+    "content": "Happy"
+  },
+  {
+    "role": "assistant",
+    "content": "Feliz"
+  }
+]
+```
 
 ### Upload Dataset
 
