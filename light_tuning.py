@@ -42,7 +42,7 @@ class LightTuning:
                     THE RESPONSE SHOULD BE IN JSONL FORMAT, WHERE EACH JSON OBJECT IS IN ONLY ONE LINE AND ALL THE JSONS OBJECTS SEPARATED BY A NEW LINE.
                     EVERY LINE SHOULD CONTAIN 1 SYSTEM, 1 USER AND 1 ASSISTANT MESSAGE.
                     
-                    Your task is to follow the conversation as expected by the system prompt, including also the system, by many messages until reach 12 lines of conversations.
+                    Your task is to follow the conversation as expected by the system prompt, including also the system, by many messages until reach 64 lines of conversations.
                     
                     The conversation is this: {input_conversation}."""
                 }
