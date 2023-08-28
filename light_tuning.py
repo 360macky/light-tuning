@@ -20,7 +20,7 @@ class LightTuning:
         self.api_key = api_key
         openai.api_key = self.api_key
 
-    def generate_dataset(self, input_conversation: str) -> Optional[str]:
+    def generate_dataset(self, input_conversation: str, n_examples=64) -> Optional[str]:
         """
         Generate a dataset by creating a conversation using the GPT-4 model.
         The conversation is based on the provided input conversation.
@@ -42,7 +42,7 @@ class LightTuning:
                     THE RESPONSE SHOULD BE IN JSONL FORMAT, WHERE EACH JSON OBJECT IS IN ONLY ONE LINE AND ALL THE JSONS OBJECTS SEPARATED BY A NEW LINE.
                     EVERY LINE SHOULD CONTAIN 1 SYSTEM, 1 USER AND 1 ASSISTANT MESSAGE.
                     
-                    Your task is to follow the conversation as expected by the system prompt, including also the system, by many messages until reach 64 lines of conversations.
+                    Your task is to follow the conversation as expected by the system prompt, including also the system, by many messages until reach {n_examples} lines of conversations.
                     
                     The conversation is this: {input_conversation}."""
                 }
